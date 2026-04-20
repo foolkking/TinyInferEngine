@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="E:\1project\TinyInferEngine\build\CMakeFiles\c180ad5bf580b05dee0c98b2c0d8ee04\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{50EC7399-8F5D-302A-AD97-C19CE3D71BA8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

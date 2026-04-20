@@ -1,0 +1,10 @@
+^E:\1PROJECT\TINYINFERENGINE\BUILD\CMAKEFILES\C180AD5BF580B05DEE0C98B2C0D8EE04\GENERATE.STAMP.RULE
+setlocal
+E:\cmake\bin\cmake.exe -SE:/1project/TinyInferEngine -BE:/1project/TinyInferEngine/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/1project/TinyInferEngine/build/TinyInferEngine.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

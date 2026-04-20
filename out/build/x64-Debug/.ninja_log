@@ -1,0 +1,4 @@
+# ninja log v7
+11	840	7979635565329660	CMakeFiles/core_lib.dir/src/tensor.cpp.obj	e2d0d6d9e6b9f3b1
+77	849	7979635565989697	CMakeFiles/test_tensor.dir/tests/test_tensor.cpp.obj	8f01df0683d4d7c4
+842	1028	7979635573639724	core_lib.lib	42c115d7ca319551

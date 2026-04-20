@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"E:/1project/TinyInferEngine/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
