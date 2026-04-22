@@ -2,13 +2,14 @@
  * @Author: fool
  * @Date: 2026-04-20 21:27:12
  * @LastEditors: fool
- * @LastEditTime: 2026-04-20 21:58:59
+ * @LastEditTime: 2026-04-22 16:32:06
  * @FilePath: \TinyInferEngine\src\main.cpp
  * @Description:  
  * @Note:  
  */
 #include <iostream>
 #include <iomanip> // 用于控制打印格式
+#include<cmath>
 
 // 引入我们的全部心血
 #include "tensor.h"
@@ -50,15 +51,23 @@ int main() {
 
     // 2. 注入灵魂：加载训练好的真实权重
     std::cout << "[INFO] Loading weights from PyTorch..." << std::endl;
-    if (!conv1->weight()->load_from_file("weights/conv1_weight.bin")) return -1;
-    if (!conv1->bias()->load_from_file("weights/conv1_bias.bin")) return -1;
-    
-    if (!fc1->weight()->load_from_file("weights/fc1_weight.bin")) return -1;
-    if (!fc1->bias()->load_from_file("weights/fc1_bias.bin")) return -1;
-    
-    if (!fc2->weight()->load_from_file("weights/fc2_weight.bin")) return -1;
-    if (!fc2->bias()->load_from_file("weights/fc2_bias.bin")) return -1;
 
+    // if (!conv1->weight()->load_from_file("weights/conv1_weight.bin")) return -1;
+    // if (!conv1->bias()->load_from_file("weights/conv1_bias.bin")) return -1;
+    
+    // if (!fc1->weight()->load_from_file("weights/fc1_weight.bin")) return -1;
+    // if (!fc1->bias()->load_from_file("weights/fc1_bias.bin")) return -1;
+    
+    // if (!fc2->weight()->load_from_file("weights/fc2_weight.bin")) return -1;
+    // if (!fc2->bias()->load_from_file("weights/fc2_bias.bin")) return -1;
+    if (!conv1->weight()->load_from_file("weights/cpp_conv1_weight.bin")) return -1;
+    if (!conv1->bias()->load_from_file("weights/cpp_conv1_bias.bin")) return -1;
+    
+    if (!fc1->weight()->load_from_file("weights/cpp_fc1_weight.bin")) return -1;
+    if (!fc1->bias()->load_from_file("weights/cpp_fc1_bias.bin")) return -1;
+    
+    if (!fc2->weight()->load_from_file("weights/cpp_fc2_weight.bin")) return -1;
+    if (!fc2->bias()->load_from_file("weights/cpp_fc2_bias.bin")) return -1;
     // 3. 准备输入图像
     std::cout << "[INFO] Loading test image..." << std::endl;
     int input_shape[] = {1, 1, 28, 28};
@@ -74,16 +83,24 @@ int main() {
     std::cout << "\n--- Confidence Scores ---" << std::endl;
     float max_score = -1e9f;
     int predicted_class = -1;
-    
+    // 寻找得分最高 
+
     for (int i = 0; i < 10; ++i) {
         float score = output->data()[i];
-        std::cout << "Digit " << i << " : " << std::fixed << std::setprecision(4) << score << std::endl;
-        
-        // 寻找得分最高的类别 (ArgMax)
         if (score > max_score) {
             max_score = score;
             predicted_class = i;
         }
+    }
+    float sum_exp = 0.0f;
+    for (int i = 0; i < 10; ++i) {
+        float score = output->data()[i];
+        sum_exp += std::exp(score - max_score); // 减去 max_score 以防止数值溢出
+    }
+    for (int i = 0; i < 10; ++i) {
+        float score = output->data()[i];
+        float prob = std::exp(score - max_score) / sum_exp;
+        std::cout << "Digit " << i << " : " << std::fixed << std::setprecision(10) << prob << std::endl;
     }
 
     std::cout << "\n=========================================" << std::endl;

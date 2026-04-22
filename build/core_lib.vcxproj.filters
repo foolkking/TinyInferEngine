@@ -22,6 +22,12 @@
     <ClCompile Include="E:\1project\TinyInferEngine\src\flatten.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="E:\1project\TinyInferEngine\src\sgd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\1project\TinyInferEngine\src\loss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="E:\1project\TinyInferEngine\CMakeLists.txt" />

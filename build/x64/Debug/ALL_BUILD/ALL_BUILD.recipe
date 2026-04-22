@@ -8,6 +8,9 @@
       <FullPath>E:\1project\TinyInferEngine\build\Debug\infer_engine.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>E:\1project\TinyInferEngine\build\Debug\train_minist.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>E:\1project\TinyInferEngine\build\x64\Debug\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

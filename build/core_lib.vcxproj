@@ -315,6 +315,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="E:\1project\TinyInferEngine\src\conv2d.cpp" />
     <ClCompile Include="E:\1project\TinyInferEngine\src\maxpool2d.cpp" />
     <ClCompile Include="E:\1project\TinyInferEngine\src\flatten.cpp" />
+    <ClCompile Include="E:\1project\TinyInferEngine\src\sgd.cpp" />
+    <ClCompile Include="E:\1project\TinyInferEngine\src\loss.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

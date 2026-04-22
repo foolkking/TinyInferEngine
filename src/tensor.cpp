@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-15 18:30:24
  * @LastEditors: fool
- * @LastEditTime: 2026-04-17 21:00:50
+ * @LastEditTime: 2026-04-22 14:48:36
  * @FilePath: \TinyInferEngine\src\tensor.cpp
  * @Description:  
  * @Note:  
@@ -10,11 +10,14 @@
 
 #include "tensor.h"
 #include <fstream>
+#include <cstdlib> // for rand() and srand()
+#include <ctime>   // for time()
 // 注意这里要加上 Tensor:: 作用域解析符
-Tensor::Tensor(const int* shape, int ndims) {
+Tensor::Tensor(const int* shape, int ndims, bool requires_grad) {
     ndims_ = ndims;
     shape_ = new int[ndims_];
     strides_ = new int[ndims_]; // 分配步长数组的内存
+    requires_grad_ = requires_grad;
     size_ = 1;
     // 拷贝形状并计算总大小
     for (int i = 0; i < ndims_; ++i) {
@@ -23,7 +26,13 @@ Tensor::Tensor(const int* shape, int ndims) {
     }
     
     data_ = new float[size_];
-    
+    if (requires_grad_) {
+        grad_ = new float[size_];
+        zero_grad(); // 刚分配完立刻清零，防止里面是内存垃圾
+    } 
+    else {
+        grad_ = nullptr;
+    }
     // 【核心优化】：从后往前，一次性计算并缓存所有维度的步长
     int current_stride = 1;
     for (int i = ndims_ - 1; i >= 0; --i) {
@@ -31,11 +40,14 @@ Tensor::Tensor(const int* shape, int ndims) {
         current_stride *= shape_[i];
     }
 }
-
+    
 Tensor::~Tensor() {
     delete[] data_;  
     delete[] shape_; 
     delete[] strides_; // 记得释放 strides_ 内存
+    if (requires_grad_ && grad_) {
+        delete[] grad_;
+    }
 }
 
 int Tensor::size() const { return size_; }
@@ -115,5 +127,23 @@ bool Tensor::load_from_file(const std::string& filename) {
     }
 
     infile.close();
+    return true;
+}
+
+
+void Tensor::randomize(float min_val, float max_val) {
+    for (int i = 0; i < size_; ++i) {
+        data_[i] = min_val + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_val - min_val)));
+    }
+}
+
+bool Tensor::save_to_bin(const std::string& file_path) const {
+    std::ofstream outfile(file_path, std::ios::binary);
+    if (!outfile.is_open()) {
+        std::cerr << "Error: Could not open file " << file_path << std::endl;
+        return false;
+    }
+    outfile.write(reinterpret_cast<const char*>(data_), size_ * sizeof(float));
+    outfile.close();
     return true;
 }

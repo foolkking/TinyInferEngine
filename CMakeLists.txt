@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 include_directories(include)
 
 # 编译核心库
-add_library(core_lib src/tensor.cpp src/relu.cpp src/linear.cpp src/model.cpp src/conv2d.cpp src/maxpool2d.cpp src/flatten.cpp)
+add_library(core_lib src/tensor.cpp src/relu.cpp src/linear.cpp src/model.cpp src/conv2d.cpp src/maxpool2d.cpp src/flatten.cpp src/sgd.cpp src/loss.cpp)
 
 # # 编译测试执行文件
 # add_executable(test_tensor tests/test_tensor.cpp)
@@ -15,6 +15,10 @@ add_library(core_lib src/tensor.cpp src/relu.cpp src/linear.cpp src/model.cpp sr
 # 编译最终的可执行文件 main.cpp
 add_executable(infer_engine src/main.cpp)
 target_link_libraries(infer_engine core_lib)
+
+#编译train_minist.cpp
+add_executable(train_minist train_minist.cpp)
+target_link_libraries(train_minist core_lib)
 
 # OpenMP 支持,多线程加速卷积计算
 find_package(OpenMP REQUIRED)

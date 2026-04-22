@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-17 16:34:52
  * @LastEditors: fool
- * @LastEditTime: 2026-04-17 20:22:24
+ * @LastEditTime: 2026-04-22 15:05:49
  * @FilePath: \TinyInferEngine\include\linear.h
  * @Description:  
  * @Note:  
@@ -22,7 +22,7 @@ private:
 
 public:
     // 构造函数：告诉这个层输入维度和输出维度是多少
-    Linear(int in_features, int out_features);
+    Linear(int in_features, int out_features,bool requires_grad = false);
     
     // 析构函数：释放 weight_ 和 bias_
     ~Linear();
@@ -40,6 +40,7 @@ public:
         }
         return {input_shape[0], out_features_};
     }
+    void Linear::backward(const Tensor& grad_output, Tensor& grad_input) override ;
 };
 
 #endif // LINEAR_H
