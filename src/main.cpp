@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-20 21:27:12
  * @LastEditors: fool
- * @LastEditTime: 2026-04-22 16:32:06
+ * @LastEditTime: 2026-04-23 13:24:08
  * @FilePath: \TinyInferEngine\src\main.cpp
  * @Description:  
  * @Note:  
@@ -20,6 +20,7 @@
 #include "flatten.h"
 #include "linear.h"
 #include "relu.h"
+#include "silu.h"
 
 int main() {
     std::cout << "=========================================" << std::endl;
@@ -39,6 +40,9 @@ int main() {
     Linear* fc1 = new Linear(8 * 13 * 13, 128);
     // 激活函数
     ReLU* relu = new ReLU();
+    // SiLU 激活函数
+    SiLU* silu = new SiLU();
+
     // 最终分类 128 -> 10
     Linear* fc2 = new Linear(128, 10);
 
@@ -47,6 +51,7 @@ int main() {
     model.add(flatten);
     model.add(fc1);
     model.add(relu);
+    // model.add(silu); // 可选：如果 PyTorch 侧使用了 SiLU 激活，这里也要加上
     model.add(fc2);
 
     // 2. 注入灵魂：加载训练好的真实权重

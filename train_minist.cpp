@@ -16,6 +16,7 @@
 #include "relu.h"
 #include "loss.h"
 #include "sgd.h"
+#include "silu.h"
 
 // 大端序转小端序辅助函数 (MNIST 格式规定使用大端序)
 uint32_t swap_endian(uint32_t val) {
@@ -98,6 +99,7 @@ int main() {
     Flatten* flatten = new Flatten();
     Linear* fc1 = new Linear(8 * 13 * 13, 128, true); // 需要求导
     ReLU* relu = new ReLU();
+    SiLU* silu = new SiLU();
     Linear* fc2 = new Linear(128, 10, true);          // 需要求导
 
     // 极简权重初始化 (打破对称性)
@@ -110,6 +112,7 @@ int main() {
     model.add(flatten);
     model.add(fc1);
     model.add(relu);
+    // model.add(silu); // 可选：如果 PyTorch 侧使用了 SiLU 激活，这里也要加上
     model.add(fc2);
 
     // 3. 配置训练组件

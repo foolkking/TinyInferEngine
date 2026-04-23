@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "RelWithDebInfo/train_minist.exe"
+			"path" : "Release/train_minist.exe"
 		},
 		{
-			"path" : "RelWithDebInfo/train_minist.pdb"
+			"path" : "Release/train_minist.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -29,13 +29,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 20,
+				"line" : 21,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 21,
+				"line" : 22,
 				"parent" : 0
 			},
 			{
@@ -64,7 +64,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc -openmp /MD /Zi /O2 /Ob1 /DNDEBUG"
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc -openmp /MD /O2 /Ob2 /DNDEBUG"
 				}
 			],
 			"includes" : 
@@ -92,11 +92,11 @@
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 2,
-			"id" : "core_lib::@6890427a1f51a3e7e1df"
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		},
 		{
-			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+			"backtrace" : 2,
+			"id" : "core_lib::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "train_minist::@6890427a1f51a3e7e1df",
@@ -105,11 +105,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc -openmp /MD /Zi /O2 /Ob1 /DNDEBUG",
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc -openmp /MD /O2 /Ob2 /DNDEBUG",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "/machine:x64  /debug /INCREMENTAL",
+				"fragment" : "/machine:x64  /INCREMENTAL:NO",
 				"role" : "flags"
 			},
 			{
@@ -118,7 +118,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "RelWithDebInfo\\core_lib.lib",
+				"fragment" : "Release\\core_lib.lib",
 				"role" : "libraries"
 			},
 			{

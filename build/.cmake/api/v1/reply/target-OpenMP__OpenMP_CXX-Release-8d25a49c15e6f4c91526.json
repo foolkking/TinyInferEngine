@@ -21,7 +21,7 @@
 			{
 				"command" : 1,
 				"file" : 1,
-				"line" : 24,
+				"line" : 25,
 				"parent" : 0
 			},
 			{
@@ -41,10 +41,10 @@
 		"major" : 2,
 		"minor" : 9
 	},
-	"id" : "OpenMP::OpenMP_C::@6890427a1f51a3e7e1df",
+	"id" : "OpenMP::OpenMP_CXX::@6890427a1f51a3e7e1df",
 	"imported" : true,
 	"local" : true,
-	"name" : "OpenMP::OpenMP_C",
+	"name" : "OpenMP::OpenMP_CXX",
 	"paths" : 
 	{
 		"build" : ".",

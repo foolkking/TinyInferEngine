@@ -19,6 +19,7 @@ class SimpleCNN(nn.Module):
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.fc1 = nn.Linear(8 * 13 * 13, 128)
         self.relu = nn.ReLU()
+        # self.silu = nn.SiLU()  # 可选
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):
@@ -27,6 +28,7 @@ class SimpleCNN(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
         x = self.relu(x)
+        # x = self.silu(x)  # 可选
         x = self.fc2(x)
         return x
 

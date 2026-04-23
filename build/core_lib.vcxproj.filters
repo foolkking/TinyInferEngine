@@ -28,6 +28,9 @@
     <ClCompile Include="E:\1project\TinyInferEngine\src\loss.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="E:\1project\TinyInferEngine\src\silu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="E:\1project\TinyInferEngine\CMakeLists.txt" />
