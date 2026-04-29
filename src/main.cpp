@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-20 21:27:12
  * @LastEditors: fool
- * @LastEditTime: 2026-04-28 20:29:56
+ * @LastEditTime: 2026-04-29 12:26:47
  * @FilePath: \TinyInferEngine\src\main.cpp
  * @Description:  
  * @Note:  
@@ -15,11 +15,7 @@
 #include "tensor.h"
 #include "layer.h"
 #include "model.h"
-#include "conv2d.h"
-#include "maxpool2d.h"
-#include "flatten.h"
-#include "linear.h"
-#include "relu.h"
+
 
 int main() {
     std::cout << "=========================================" << std::endl;

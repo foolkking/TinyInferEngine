@@ -4,22 +4,7 @@
     <ClCompile Include="E:\1project\TinyInferEngine\src\tensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\relu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\linear.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="E:\1project\TinyInferEngine\src\model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\conv2d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\maxpool2d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\flatten.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="E:\1project\TinyInferEngine\src\optimizer.cpp">
@@ -28,7 +13,7 @@
     <ClCompile Include="E:\1project\TinyInferEngine\src\loss.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\1project\TinyInferEngine\src\silu.cpp">
+    <ClCompile Include="E:\1project\TinyInferEngine\src\layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="E:\1project\TinyInferEngine\src\scheduler.cpp">

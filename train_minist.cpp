@@ -11,12 +11,6 @@
 #include "tensor.h"
 #include "layer.h"
 #include "model.h"
-#include "conv2d.h"
-#include "maxpool2d.h"
-#include "flatten.h"
-#include "linear.h"
-#include "relu.h"
-#include "silu.h"
 #include "loss.h"
 #include "optimizer.h"  // 包含 ParamGroup, SGD, AdamW
 #include "scheduler.h"  // 包含 LRScheduler, CosineAnnealingLR
