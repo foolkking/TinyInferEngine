@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-15 18:30:24
  * @LastEditors: fool
- * @LastEditTime: 2026-04-22 14:48:36
+ * @LastEditTime: 2026-04-28 23:13:28
  * @FilePath: \TinyInferEngine\src\tensor.cpp
  * @Description:  
  * @Note:  
@@ -12,15 +12,15 @@
 #include <fstream>
 #include <cstdlib> // for rand() and srand()
 #include <ctime>   // for time()
+#include <algorithm>
 // 注意这里要加上 Tensor:: 作用域解析符
-Tensor::Tensor(const int* shape, int ndims, bool requires_grad) {
-    ndims_ = ndims;
-    shape_ = new int[ndims_];
-    strides_ = new int[ndims_]; // 分配步长数组的内存
+Tensor::Tensor(const std::vector<int>& shape, bool requires_grad) {
+    shape_ = shape;
+    strides_ = new int[ndims()]; // 分配步长数组的内存
     requires_grad_ = requires_grad;
     size_ = 1;
     // 拷贝形状并计算总大小
-    for (int i = 0; i < ndims_; ++i) {
+    for (int i = 0; i < ndims(); ++i) {
         shape_[i] = shape[i];
         size_ *= shape[i];
     }
@@ -35,7 +35,7 @@ Tensor::Tensor(const int* shape, int ndims, bool requires_grad) {
     }
     // 【核心优化】：从后往前，一次性计算并缓存所有维度的步长
     int current_stride = 1;
-    for (int i = ndims_ - 1; i >= 0; --i) {
+    for (int i = ndims() - 1; i >= 0; --i) {
         strides_[i] = current_stride;
         current_stride *= shape_[i];
     }
@@ -43,7 +43,7 @@ Tensor::Tensor(const int* shape, int ndims, bool requires_grad) {
     
 Tensor::~Tensor() {
     delete[] data_;  
-    delete[] shape_; 
+    shape_.clear();
     delete[] strides_; // 记得释放 strides_ 内存
     if (requires_grad_ && grad_) {
         delete[] grad_;
@@ -54,7 +54,7 @@ int Tensor::size() const { return size_; }
 
 int Tensor::shape(int index) const {
     // 可以在这里加一个简单的越界检查，保证引擎的鲁棒性
-    if (index < 0 || index >= ndims_) {
+    if (index < 0 || index >= ndims()) {
         std::cerr << "Error: Dimension index out of bounds!" << std::endl;
         return -1;
     }
@@ -63,11 +63,11 @@ int Tensor::shape(int index) const {
 
 void Tensor::print_info() const {
     std::cout << "Tensor Info: " << std::endl;
-    std::cout << "Dimensions: " << ndims_ << std::endl;
+    std::cout << "Dimensions: " << ndims() << std::endl;
     std::cout << "Shape: [";
-    for (int i = 0; i < ndims_; ++i) {
+    for (int i = 0; i < ndims(); ++i) {
         std::cout << shape_[i];
-        if (i < ndims_ - 1) std::cout << ", ";
+        if (i < ndims() - 1) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     std::cout << "Total Size: " << size_ << std::endl;
@@ -88,7 +88,7 @@ void Tensor::fill(float value) {
 }
 
 int Tensor::stride(int index) const {
-    if (index < 0 || index >= ndims_) {
+    if (index < 0 || index >= ndims()) {
         std::cerr << "Error: Dimension index out of bounds!" << std::endl;
         return -1;
     }
@@ -97,7 +97,7 @@ int Tensor::stride(int index) const {
 
 float& Tensor::at(const int* indices) {
     int offset = 0;
-    for (int i = 0; i < ndims_; ++i) {
+    for (int i = 0; i < ndims(); ++i) {
         offset += indices[i] * stride(i);
     }
     return data_[offset];
@@ -105,7 +105,7 @@ float& Tensor::at(const int* indices) {
 
 const float& Tensor::at(const int* indices) const {
     int offset = 0;
-    for (int i = 0; i < ndims_; ++i) {
+    for (int i = 0; i < ndims(); ++i) {
         offset += indices[i] * stride(i);
     }
     return data_[offset];
@@ -146,4 +146,38 @@ bool Tensor::save_to_bin(const std::string& file_path) const {
     outfile.write(reinterpret_cast<const char*>(data_), size_ * sizeof(float));
     outfile.close();
     return true;
+}
+
+void Tensor::set_auto_grad(const std::function<void()>& backward_fn, const std::vector<TensorPtr>& prev) {
+    backward_fn_ = backward_fn;
+    prev_ = prev;
+}
+static void build_topo(const TensorPtr& node, std::vector<TensorPtr>& topo) {
+    if (!node->is_view()) {
+        node->set_view(true); 
+        for (const auto& prev_node : node->prev()) {
+            build_topo(prev_node, topo);
+        }
+        topo.push_back(node);
+    }
+
+}
+
+void Tensor::backward() {
+    std::vector<TensorPtr> topo;
+    build_topo(shared_from_this(), topo);
+    std::reverse(topo.begin(), topo.end()); // 反转拓扑排序结果，确保从叶子节点开始反向传播
+    for (int i= 0;i<this->size();++i){  // 反向传播的起点是输出节点，输出节点的梯度初始化为1，表示 d(output)/d(output) = 1
+        if (this->grad_){
+            this->grad_[i] = 1.0f;
+        }
+    }
+    for (const auto& node : topo) {
+        if (node->backward_fn_) {
+            node->backward_fn_(); // 调用每个节点的反向传播函数
+        }
+    }
+    for(const auto& node : topo){
+        node->set_view(false); // 反向传播结束后重置视图标志，允许下次反向传播重新构建计算图
+    }
 }

@@ -8,7 +8,7 @@ include_directories(include)
 
 # 编译核心库
 add_library(core_lib src/tensor.cpp src/relu.cpp src/linear.cpp src/model.cpp src/conv2d.cpp 
-            src/maxpool2d.cpp src/flatten.cpp src/sgd.cpp src/loss.cpp src/silu.cpp)
+            src/maxpool2d.cpp src/flatten.cpp src/optimizer.cpp src/loss.cpp src/silu.cpp src/scheduler.cpp)
 
 # # 编译测试执行文件
 # add_executable(test_tensor tests/test_tensor.cpp)

@@ -1,17 +1,11 @@
 ================================================================================
 Linker Errors
-Generated: 2026-04-22T07:14:52.109Z
-Total Errors: 4
+Generated: 2026-04-29T03:02:10.495Z
+Total Errors: 2
 ================================================================================
 
-[LNK2019] (MSVC)
-无法解析的外部符号 "public: virtual __cdecl Conv2D::~Conv2D(void)" (??1Conv2D@@UEAA@XZ)，函数 "public: virtual void * __cdecl Conv2D::`scalar deleting destructor'(unsigned int)" (??_GConv2D@@UEAAPEAXI@Z) 中引用了该符号 [E:\1project\TinyInferEngine\build\infer_engine.vcxproj]
-
-[LNK1120] (MSVC)
-1 个无法解析的外部命令 [E:\1project\TinyInferEngine\build\infer_engine.vcxproj]
-
-[LNK2019] (MSVC)
-无法解析的外部符号 "public: virtual __cdecl Conv2D::~Conv2D(void)" (??1Conv2D@@UEAA@XZ)，函数 "public: virtual void * __cdecl Conv2D::`scalar deleting destructor'(unsigned int)" (??_GConv2D@@UEAAPEAXI@Z) 中引用了该符号 [E:\1project\TinyInferEngine\build\train_minist.vcxproj]
+[LNK2001] (MSVC)
+无法解析的外部符号 "public: virtual class std::shared_ptr<class Tensor> __cdecl Loss::forward(class std::shared_ptr<class Tensor>,class std::shared_ptr<class Tensor>)" (?forward@Loss@@UEAA?AV?$shared_ptr@VTensor@@@std@@V23@0@Z) [E:\1project\TinyInferEngine\build\train_minist.vcxproj]
 
 [LNK1120] (MSVC)
 1 个无法解析的外部命令 [E:\1project\TinyInferEngine\build\train_minist.vcxproj]

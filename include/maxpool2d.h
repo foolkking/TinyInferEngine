@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-20 22:14:51
  * @LastEditors: fool
- * @LastEditTime: 2026-04-22 15:38:13
+ * @LastEditTime: 2026-04-27 12:38:19
  * @FilePath: \TinyInferEngine\include\maxpool2d.h
  * @Description:  
  * @Note:  
@@ -22,9 +22,11 @@ public:
     MaxPool2D( int k_size, int stride = 1, int padding = 0);
     ~MaxPool2D()override;
 
-    void forward(const Tensor& input, Tensor& output) override;
-    std::vector<int> compute_output_shape(const std::vector<int>& input_shape) const override;
-    void backward(const Tensor& grad_output, Tensor& grad_input) override;
+    TensorPtr forward(TensorPtr input) override;
+    std::vector<NamedParameter> parameters()  override {
+        // MaxPool2D 没有可训练的权重，所以返回空向量
+        return {};
+    }
 };
 
 #endif

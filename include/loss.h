@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-22 00:43:10
  * @LastEditors: fool
- * @LastEditTime: 2026-04-22 00:43:17
+ * @LastEditTime: 2026-04-29 11:05:49
  * @FilePath: \TinyInferEngine\include\loss.h
  * @Description:  
  * @Note:  
@@ -11,25 +11,25 @@
 #define LOSS_H
 
 #include "tensor.h"
-
-class CrossEntropyLoss {
-private:
-    Tensor* cached_probs_ = nullptr; // 缓存 Softmax 算出的概率
-    int* cached_labels_ = nullptr;   // 缓存真实的标签
-    int batch_size_;
-    int num_classes_;
-
+class Loss{
+public :
+    virtual TensorPtr forward(TensorPtr preds, TensorPtr targets){return nullptr;};  //返回的是一个可以触发自动求导的 TensorPtr！
+    virtual ~Loss()=default;
+};
+class CrossEntropyLoss : public Loss{
+/*
+交叉熵损失 (多分类任务损失计算)
+*/
 public:
-    CrossEntropyLoss() = default;
-    ~CrossEntropyLoss();
+    virtual TensorPtr forward(TensorPtr preds, TensorPtr targets) override;
+};
 
-    // 前向传播：计算 Loss 标量值
-    // logits: 网络的最后一层输出
-    // target_labels: 真实的类别索引数组 (例如 [2, 0, 1])
-    float forward(const Tensor& logits, const int* target_labels);
-
-    // 反向传播：返回初始的误差梯度 Tensor
-    Tensor* backward();
+class MSELoss : public Loss{
+/*
+均方误差损失 (回归任务损失计算)
+*/
+public:
+    virtual TensorPtr forward(TensorPtr preds, TensorPtr targets)  override;
 };
 
 #endif // LOSS_H
