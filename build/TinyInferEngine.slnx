@@ -11,7 +11,8 @@
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
 		<BuildDependency Project="core_lib.vcxproj"/>
 		<BuildDependency Project="infer_engine.vcxproj"/>
-		<BuildDependency Project="train_minist.vcxproj"/>
+		<BuildDependency Project="test_tensor.vcxproj"/>
+		<BuildDependency Project="train_mnist.vcxproj"/>
 		<Build Solution="Debug|*" Project="false"/>
 		<Build Solution="Release|*" Project="false"/>
 		<Build Solution="MinSizeRel|*" Project="false"/>
@@ -25,7 +26,11 @@
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
 		<BuildDependency Project="core_lib.vcxproj"/>
 	</Project>
-	<Project Path="train_minist.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="1f56fc3e-4514-3543-b8d9-96b651a06330">
+	<Project Path="test_tensor.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="df673bb2-61b3-35cf-8210-149021116db5">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="core_lib.vcxproj"/>
+	</Project>
+	<Project Path="train_mnist.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="768c881d-aceb-3788-ab7c-b246ecb99bdb">
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
 		<BuildDependency Project="core_lib.vcxproj"/>
 	</Project>

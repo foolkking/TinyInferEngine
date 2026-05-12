@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-20 22:14:50
  * @LastEditors: fool
- * @LastEditTime: 2026-04-29 12:25:42
+ * @LastEditTime: 2026-05-04 13:27:31
  * @FilePath: \TinyInferEngine\src\layer.cpp
  * @Description:  
  * @Note:  
@@ -463,3 +463,128 @@ TensorPtr SiLU::forward(TensorPtr input){// SiLU(x) = x * sigmoid(x)
     }
     return output;
 }
+
+
+/// @param num_features 输出特征数，整个网络每一层输出的“通道数”在一开始就必须是完全确定的
+/// @param eps 防止除零，默认1e-5
+/// @param momentum  动量，越大越偏向之前batch结果，默认0.1
+BatchNorm2D::BatchNorm2D(int num_features, float eps, float momentum)
+    : num_features_(num_features), eps_(eps), momentum_(momentum) {
+    std::vector<int> w_shape = {num_features};
+    weight_ = std::make_shared<Tensor>(w_shape, true);
+    bias_ = std::make_shared<Tensor>(w_shape, true);
+    weight_->ones();
+    bias_->zeros();
+    running_mean_.assign(num_features, 0.0f);
+    running_var_.assign(num_features, 1.0f);
+}
+
+std::vector<NamedParameter> BatchNorm2D::parameters(){
+    return { {"weight",weight_ }, {"bias",bias_}};
+}
+
+TensorPtr BatchNorm2D::forward(TensorPtr input) {
+    TensorPtr output = std::make_shared<Tensor>(input->shape(),input->requires_grad());
+    int batch_size = input->shape(0);
+    int num_features = input->shape(1);
+    int height = input->shape(2);
+    int width = input->shape(3);
+    int spacial_size = height * width;
+    int N = batch_size * spacial_size; // 每个通道的元素总数
+
+    float* input_data = input->data();
+    float* output_data = output->data();
+
+    std::vector<float> batch_mean(num_features, 0.0f);
+    std::vector<float> batch_var(num_features, 0.0f);
+    std::vector<float> normalized_input(input->size(), 0.0f); // 用于存储标准化后的输入值，反向传播时需要用到,空间换时间
+    std::vector<float> inv_var_cache(num_features, 0.0f); // 用于存储每个通道的方差倒数乘γ，反向传播时需要用到，空间换时间
+    if(training_){
+        for(int c=0; c<num_features;++c){
+            float sum = 0.0f;
+            for(int b=0;b<batch_size;++b){
+                for(int hw=0;hw<spacial_size;++hw){
+                        int index = b*num_features*spacial_size+c* spacial_size+hw;
+                        sum += input_data[index];
+                }
+            }
+            batch_mean[c] = sum/(batch_size*spacial_size);
+            running_mean_[c] = running_mean_[c]*(momentum_)+sum/( batch_size*spacial_size)*(1 -momentum_);
+            float var_sum = 0.0;
+            for(int b=0;b<batch_size;++b ){
+                for(int hw=0;hw<spacial_size;++hw){
+                    int index = b*num_features *spacial_size+c* spacial_size+hw;
+                    float diff = input_data[index]-running_mean_[c];
+                    var_sum += diff*diff;
+                }
+            }
+            batch_var[c] = var_sum/(batch_size*spacial_size);
+            running_var_[c] = running_var_[c]*(momentum_)+var_sum/(batch_size*spacial_size)*(1 -momentum_);
+            inv_var_cache[c] = 1.0f/sqrt(batch_var[c]+eps_)*weight_->data(c); // 预先计算方差倒数乘γ，反向传播时直接用
+        }
+    }
+    for(int c=0; c<num_features;++c){
+        float mean =training_? batch_mean[c]: running_mean_[c];
+        float var = training_? batch_var[c]: running_var_[c];
+        var = sqrt(var+eps_);
+
+        float weight = weight_->data(c);
+        float bias = bias_->data(c);
+        for(int b=0;b<batch_size;++b){
+            for(int hw=0;hw<spacial_size;++hw){
+                int index = b*num_features*spacial_size+c*spacial_size+hw;
+                normalized_input[index] = (input_data[index]-mean)/var;
+                output_data[index] = normalized_input[index] * weight + bias;
+            }
+        }
+    }
+    if(input->requires_grad()){
+        Tensor* output_ptr = output.get();
+        std::function<void()> backward_fn = [input,output_ptr,batch_size,num_features,spacial_size,normalized_input,weight=weight_.get(),bias=bias_.get(),inv_var_cache,N]() {
+            const float* grad_output_data = output_ptr->grad();
+            float* grad_input_data = input->grad();
+            float* grad_weight = weight->requires_grad() ? weight->grad() : nullptr;
+            float* grad_bias   = bias->requires_grad() ? bias->grad() : nullptr;
+            for(int c=0; c<num_features;++c){
+                float col_grad_bias = 0.0f;
+                float col_grad_weight = 0.0f;
+                for(int b=0;b<batch_size;++b){
+                    for(int hw=0;hw<spacial_size;++hw){
+                        int index = b*num_features*spacial_size+c*spacial_size+hw;
+                        col_grad_bias += grad_output_data[index];
+                        col_grad_weight += grad_output_data[index]*normalized_input[index];
+                    }
+                }
+                if(bias->requires_grad()){ grad_bias[c] += col_grad_bias;} // 累加偏置的梯度
+                if(weight->requires_grad()){grad_weight[c] += col_grad_weight;}// 累加权重的梯度
+               
+                // 计算输入的梯度,与 momentum_无关，momentum_是验证才用的
+                // xi​→μ→σ2→x^i​
+                // ​∂L/​∂x_j = (​∂L/(∂x^_j)) * (​∂x^_j/​∂x_j)  ​= (​∂L/​∂y_j) * ​γ * (​∂x^_j/​∂x_j) 
+                // 最重要求：(​∂x^_j/​∂x_j)  ，由归一化表达式.链式求导法则。
+                //
+                // 归一化表达式：x^i​=(xi​−μ)/σ
+                // ​∂x^_j/​∂x_j = 1/σ * (1 - 1/N) - 1/N * (xi​−μ)/σ^3 * (xi​−μ) = 1/σ * (1 - 1/N - (xi​−μ)^2/(N*σ^2))
+                // 其中 N 是每个通道的元素总数，即 batch_size * spacial_size
+                if(input->requires_grad()) {
+                    float gamma_over_std = inv_var_cache[c];
+                    float inv_N = 1.0f / N;
+                    for(int b=0;b<batch_size;++b){
+                        for(int hw=0;hw<spacial_size;++hw){
+                            int index = b*num_features*spacial_size+c*spacial_size+hw;
+                            float dout = grad_output_data[index];
+                            float x_hat = normalized_input[index];
+                            // dx = (gamma / var) * (dout - mean(dout) - x_hat * mean(dout * x_hat))
+                            // 极致优雅：复用算好的 col_grad_bias 和 col_grad_weight
+                            grad_input_data[index] += gamma_over_std*(dout - col_grad_bias*inv_N - x_hat*col_grad_weight/N);
+                        }
+                    }
+                }
+            }
+        };
+        output->set_auto_grad(backward_fn,{input,weight_,bias_});
+    }
+    return output;     
+}
+
+

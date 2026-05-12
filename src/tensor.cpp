@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-15 18:30:24
  * @LastEditors: fool
- * @LastEditTime: 2026-04-28 23:13:28
+ * @LastEditTime: 2026-04-29 20:20:08
  * @FilePath: \TinyInferEngine\src\tensor.cpp
  * @Description:  
  * @Note:  
@@ -80,6 +80,15 @@ float* Tensor::data() {
 const float* Tensor::data() const {
     return data_;
 }
+float Tensor::data(int index) {
+    return data_[index];
+
+}
+
+const float Tensor::data(int index) const {
+    return data_[index];
+}
+
 
 void Tensor::fill(float value) {
     for (int i = 0; i < size_; ++i) {
@@ -181,3 +190,35 @@ void Tensor::backward() {
         node->set_view(false); // 反向传播结束后重置视图标志，允许下次反向传播重新构建计算图
     }
 }
+
+
+TensorPtr Tensor::add(const TensorPtr& a, const TensorPtr& b){
+    if(a->size()!=b->size()){
+        throw std::runtime_error("[FATAL] add_tensors: Shape mismatch!");
+    }
+    int total_elem = a->size();
+    bool out_req_grad = a->requires_grad()||b->requires_grad();
+    TensorPtr output= std::make_shared<Tensor>(a->shape(),out_req_grad);
+    float* output_data = output->data();
+    float* a_data = a->data();
+    float* b_data = b->data();
+    for(int i =0;i<total_elem;++i){
+        output_data[i] = a_data[i]+b_data[i];
+    }
+    if(out_req_grad){
+        Tensor* output_ptr = output.get();
+        std::function<void()> backward_fn = [output_ptr,a,b,total_elem](){
+            float*a_grad,*b_grad;
+            if(a->requires_grad())float* a_grad = a->grad();
+            if(b->requires_grad())float* b_grad = b->grad(); 
+            float* output_grad = output_ptr->grad();
+            for(int i=0;i<total_elem;i++){
+                if(a->requires_grad())a_grad[i]+= output_grad[i];
+                if(b->requires_grad())b_grad[i]+= output_grad[i];
+            }
+        };
+        output->set_auto_grad(backward_fn,{a,b});
+    }
+    return output;
+}
+

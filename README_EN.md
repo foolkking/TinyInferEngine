@@ -10,7 +10,7 @@ A small C++ deep-learning style framework with a **dynamic computation graph** a
 |------|--------|
 | Core | `Tensor`, `Layer`, `Sequential`, autograd via `set_auto_grad` |
 | Layers | `Linear`, `Conv2D`, `MaxPool2D`, `Flatten`, `ReLU`, `SiLU`, `BatchNorm2D` |
-| Training | `train_minist.cpp` (CMake target name keeps the historical typo `train_minist`) |
+| Training | `train_mnist.cpp` (CMake target `train_mnist`) |
 | Inference | `infer_engine` from `src/main.cpp` |
 | Export | Root-level `export_model.py` trains a matching PyTorch CNN and exports weights for C++ |
 
@@ -37,7 +37,7 @@ On Windows with the Visual Studio generator, binaries usually appear under `buil
 
 ## Tests
 
-`tests/test_tensor.cpp` is an older draft and is **not** wired into CMake until it is updated to the current `Tensor` / `Layer` API.
+The `test_tensor` target builds `tests/test_tensor.cpp` (smoke tests for `Tensor`, `Linear`, `ReLU`, and `Sequential`).
 
 ## Last updated
 

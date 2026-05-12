@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-17 15:46:44
  * @LastEditors: fool
- * @LastEditTime: 2026-04-29 12:38:32
+ * @LastEditTime: 2026-04-30 14:42:05
  * @FilePath: \TinyInferEngine\include\layer.h
  * @Description:  
  * @Note:  
@@ -11,6 +11,8 @@
 #define LAYER_H
 #include <vector>
 #include <utility> // for std::pair
+#include <stdexcept> // for std::runtime_error
+
 #include "tensor.h"
 
 /// 命名参数结构体，为Tensor赋予身份标识和名称
@@ -31,6 +33,7 @@ using LayerPtr = std::shared_ptr<Layer>;
 /// 包括的层有：
 /// 常规层： Linear 、 Conv2D  、MaxPool2D  、 Flatten
 /// 激活函数层：ReLU  、 SiLU 
+/// 批归一化和层归一化： 
 ///
 /// 主要职责：
 /// - 前向传播计算
@@ -43,6 +46,7 @@ using LayerPtr = std::shared_ptr<Layer>;
 /// - 支持参数提取用于优化器
 class Layer {
 protected:
+    bool training_ = false;
     /// 清理层内部资源（缓存、临时数据等）
     /// 默认实现什么都不做，子类可重写来释放自己的缓存
     virtual void clearup() { 
@@ -56,7 +60,7 @@ public:
     /// 前向传播计算
     /// @param input 输入张量，维度取决于具体层的设计
     /// @return 输出张量，维度由层的计算规则确定
-    /// @note 该方法是纯虚函数，所有子类必须实现
+    /// @note 该方法是纯虚函数，所有子类必须实现，backward梯度是dL/dx = dL/dy  *  dy/dx
     virtual TensorPtr forward(TensorPtr input) = 0; 
     
     /// 获取该层的所有可训练参数
@@ -68,9 +72,11 @@ public:
         // 而 Linear, Conv2D 这种有权重的层，需要重写它，返回 {{"weight", weight_}, {"bias", bias_}}
         return {}; 
     }
+    virtual void train(){training_ = true;}
+    virtual void eval(){training_ = false;}
 };
 
-/// 全连接层（线性层）
+/// 全连接层（线性层，全连接层）:一般高维经过flatten展平后才用它
 /// 
 /// 实现标准的线性变换: y = Wx + b
 /// 其中 W 是权重矩阵，b 是偏置向量
@@ -83,7 +89,6 @@ public:
 /// - 输入形状: [batch_size, ..., in_features]
 /// - 输出形状: [batch_size, ..., out_features]
 class Linear : public Layer {
-
 private:
     int in_features_;    ///< 输入特征维度
     int out_features_;   ///< 输出特征维度
@@ -92,6 +97,7 @@ private:
     TensorPtr bias_;     ///< 偏置张量，形状 [out_features]，需要求梯度
     
 protected:
+
     /// 清理内部资源
     void clearup() override {
         // 这里不需要手动 delete 了，智能指针会自动管理内存
@@ -126,6 +132,7 @@ public:
     /// 获取可训练参数
     /// @return 包含权重和偏置的NamedParameter向量
     std::vector<NamedParameter> parameters() override;
+
 };
 
 /// 二维卷积层
@@ -294,5 +301,30 @@ public:
     }
 
 };
+
+
+class BatchNorm2D : public Layer {
+private:
+    int num_features_;
+    float eps_;  /// 数值稳定性小常数，防止除零
+    float momentum_; /// 运行统计的更新动量，通常在0.1到0.01之间
+    
+    std::vector<float> running_mean_;  
+    std::vector<float> running_var_;
+
+    //x^=(x−μ)/sqrt(σ2+eps)       y=γ∗x^+β
+    TensorPtr weight_; // Gamma (缩放)
+    TensorPtr bias_;   // Beta (平移)
+
+public:
+    BatchNorm2D(int num_features, float eps = 1e-5f, float momentum = 0.1f);
+    ~BatchNorm2D() override = default;
+
+    TensorPtr forward(TensorPtr input) override;
+    std::vector<NamedParameter> parameters()override;
+};
+
+
+
 
 #endif // LAYER_H

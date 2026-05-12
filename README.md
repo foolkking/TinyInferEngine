@@ -73,7 +73,7 @@ TinyInferEngine/
 ├── README.md
 ├── README_EN.md               # 英文简介（与中文 README 配套）
 ├── export_model.py            # PyTorch 训练并导出 float32 权重（与 C++ 侧二进制格式配套）
-├── train_minist.cpp           # MNIST 训练入口（可执行目标名仍为 train_minist，历史拼写）
+├── train_mnist.cpp            # MNIST 训练入口（可执行目标 train_mnist）
 ├── include/
 │   ├── tensor.h               # 张量与自动求导
 │   ├── layer.h                # Layer 基类与各算子声明（Linear / Conv2D / Pool / 激活 / BN 等）
@@ -90,7 +90,7 @@ TinyInferEngine/
 │   ├── scheduler.cpp
 │   └── loss.cpp
 ├── tests/
-│   └── test_tensor.cpp        # 早期测试草稿（与当前 API 不一致，默认未接入 CMake）
+│   └── test_tensor.cpp        # 张量与层的基础回归测试（目标 test_tensor）
 ├── data/                      # 数据集目录（如 MNIST）
 ├── weights/                   # 导出的 .bin 权重（按需放置，大文件建议勿提交）
 └── .gitignore
@@ -150,15 +150,15 @@ cmake --build . --config Release
 # 推理（路径按你的生成目录调整）
 ./infer_engine
 
-# MNIST 训练（可执行文件名仍为 train_minist）
-./train_minist
+# MNIST 训练
+./train_mnist
 ```
 
 Windows（Release 示例）：
 
 ```text
 build\Release\infer_engine.exe
-build\Release\train_minist.exe
+build\Release\train_mnist.exe
 ```
 
 ### 构建目标
@@ -166,9 +166,9 @@ build\Release\train_minist.exe
 | 目标 | 说明 |
 |------|------|
 | `infer_engine` | 推理可执行文件（`src/main.cpp`） |
-| `train_minist` | MNIST 训练（`train_minist.cpp`；目标名为历史拼写） |
+| `train_mnist` | MNIST 训练（`train_mnist.cpp`） |
 | `core_lib` | 核心静态库 |
-| `test_tensor` | 未默认加入构建：`tests/test_tensor.cpp` 需先与当前 `Tensor` / `Layer` API 对齐后再在 CMake 中启用 |
+| `test_tensor` | 单元测试可执行文件（`tests/test_tensor.cpp`） |
 
 > **Python 导出权重**：在仓库根目录执行 `python export_model.py`（需单独安装 PyTorch / torchvision），生成与 C++ `Tensor::load_from_file` 一致的 float32 原始二进制文件。
 

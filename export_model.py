@@ -9,7 +9,7 @@ from PIL import Image
 # ✅ 1. 选择设备（自动）
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device:", device)
-
+print(torch.__version__)
 
 # 2. 网络结构
 class SimpleCNN(nn.Module):

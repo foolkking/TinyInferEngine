@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-17 19:55:27
  * @LastEditors: fool
- * @LastEditTime: 2026-04-29 12:59:15
+ * @LastEditTime: 2026-04-29 18:02:36
  * @FilePath: \TinyInferEngine\include\model.h
  * @Description:  
  * @Note:  
@@ -109,6 +109,8 @@ public:
     /// }
     /// ```
     std::vector<NamedParameter> named_parameters() const;
+    void train(){for(auto &layer:layers_) layer->train();}
+    void eval(){for(auto &layer:layers_)  layer->eval();}
 };
 
 #endif // MODEL_H

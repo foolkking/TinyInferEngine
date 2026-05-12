@@ -182,9 +182,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{396D55B3-71BB-31DB-802B-0289910916C8}</Project>
       <Name>infer_engine</Name>
     </ProjectReference>
-    <ProjectReference Include="E:\1project\TinyInferEngine\build\train_minist.vcxproj">
-      <Project>{1F56FC3E-4514-3543-B8D9-96B651A06330}</Project>
-      <Name>train_minist</Name>
+    <ProjectReference Include="E:\1project\TinyInferEngine\build\test_tensor.vcxproj">
+      <Project>{DF673BB2-61B3-35CF-8210-149021116DB5}</Project>
+      <Name>test_tensor</Name>
+    </ProjectReference>
+    <ProjectReference Include="E:\1project\TinyInferEngine\build\train_mnist.vcxproj">
+      <Project>{768C881D-ACEB-3788-AB7C-B246ECB99BDB}</Project>
+      <Name>train_mnist</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

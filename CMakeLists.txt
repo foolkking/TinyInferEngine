@@ -10,16 +10,14 @@ include_directories(include)
 # 编译核心库
 add_library(core_lib src/tensor.cpp  src/model.cpp src/optimizer.cpp src/loss.cpp src/layer.cpp src/scheduler.cpp)
 
-# # 编译测试执行文件
-# add_executable(test_tensor tests/test_tensor.cpp)
-# target_link_libraries(test_tensor core_lib)
-# 编译最终的可执行文件 main.cpp
+add_executable(test_tensor tests/test_tensor.cpp)
+target_link_libraries(test_tensor core_lib)
+
 add_executable(infer_engine src/main.cpp)
 target_link_libraries(infer_engine core_lib)
 
-#编译train_minist.cpp
-add_executable(train_minist train_minist.cpp)
-target_link_libraries(train_minist core_lib)
+add_executable(train_mnist train_mnist.cpp)
+target_link_libraries(train_mnist core_lib)
 
 # OpenMP 支持,多线程加速卷积计算
 find_package(OpenMP REQUIRED)

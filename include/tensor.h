@@ -2,7 +2,7 @@
  * @Author: fool
  * @Date: 2026-04-15 18:30:24
  * @LastEditors: fool
- * @LastEditTime: 2026-04-26 14:25:24
+ * @LastEditTime: 2026-04-29 20:21:12
  * @FilePath: \TinyInferEngine\include\tensor.h
  * @Description:  
  * @Note:  
@@ -69,7 +69,6 @@ public:
     /// @param requires_grad 是否需要计算梯度(用于自动求导)，默认false
     /// @note shape必须在构造时确定，之后不可改变
     Tensor(const std::vector<int>& shape, bool requires_grad = false);
-    
     /// 析构函数，释放数据、梯度和stride数组
     ~Tensor();
 
@@ -92,15 +91,14 @@ public:
     /// 获取数据指针(可写)
     /// @return 指向内部数据的可写指针，用于直接访问和修改数据
     float* data();
-    
+    float data(int index);
     /// 获取数据指针(只读)
     /// @return 指向内部数据的只读常量指针
     const float* data() const;
-    
+    const float data(int index) const;  
     /// 获取张量维度数
     /// @return 张量的维度数(如3D张量返回3)
     int ndims() const { return shape_.size(); }
-    
     /// 获取指定维度的步长(stride)
     /// @param index 维度索引
     /// @return 该维度的步长，用于多维索引转换
@@ -138,6 +136,8 @@ public:
     /// 用指定值填充张量的所有元素
     /// @param value 填充值
     void fill(float value);
+    void ones(){fill(1.0f);}
+    void zeros(){fill(0.0f);}
     
     /// 从文件加载数据
     /// @param filename 文件路径
@@ -185,6 +185,10 @@ public:
     /// @note 仅在输出张量(损失值)上调用
     void backward();
     
+    /// 张量相加，纯数学算子：支持前向计算与反向建图
+    TensorPtr add(const TensorPtr& a, const TensorPtr& b);
+    
+
     // 禁用拷贝构造和赋值，防止数据共享导致的问题
     Tensor(const Tensor&) = delete;              ///< 删除拷贝构造函数
     Tensor& operator=(const Tensor&) = delete;   ///< 删除赋值操作符
@@ -192,12 +196,3 @@ public:
 
 #endif // TENSOR_H
 
-/// **算子(Layer)的职责：**
-/// 算子只负责前向计算，不包含反向传播函数。
-/// 反向传播逻辑完全通过 Tensor::set_auto_grad 动态打包进计算图。
-/// 
-/// **示例(Linear层的forward)：**
-/// 算子在计算完结果后，定义一个闭包来捕获求导法则，
-/// 然后调用 set_auto_grad 将其绑定到输出张量。
-/// 当调用 backward() 时，这个闭包会被自动执行，
-/// 自动地把输出的梯度变成输入的梯度，递归地传播下去。
