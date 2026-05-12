@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(TinyInferEngine)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 指定头文件搜索路径
 include_directories(include)

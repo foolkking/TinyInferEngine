@@ -1,10 +1,10 @@
 # TinyInferEngine
 
-一个轻量级的 C++ 深度学习推理框架，支持动态计算图和自动求导。
+一个轻量级的 C++ 深度学习框架示例：支持动态计算图与自动求导，并包含 MNIST 训练与二进制权重推理的完整小闭环。
 
 **语言**: 中文 | [English](README_EN.md)
 
-## 📋 目录
+## 目录
 
 - [项目简介](#项目简介)
 - [主要特性](#主要特性)
@@ -15,7 +15,6 @@
 - [示例](#示例)
 - [架构设计](#架构设计)
 - [贡献指南](#贡献指南)
-- [许可证](#许可证)
 
 ## 项目简介
 
@@ -24,7 +23,7 @@ TinyInferEngine 是一个从零开始构建的 C++ 深度学习框架，专注�
 - **动态计算图**：前向计算时动态构建，支持灵活的网络结构
 - **自动求导(Autograd)**：通过动态闭包实现梯度反向传播
 - **纯粹的架构设计**：Layer 是"造图工厂"，专注前向计算；反向逻辑完全封装在 Tensor 的闭包中
-- **零依赖实现**：仅使用标准库，无需外部深度学习框架
+- **C++ 核心零第三方库**：张量、层与自动求导实现仅依赖 C++ 标准库；构建时通过 CMake 启用 **OpenMP** 以加速部分算子（见 `CMakeLists.txt`）
 
 适合用于：
 - 学习深度学习框架的内部原理
@@ -52,6 +51,7 @@ TinyInferEngine 是一个从零开始构建的 C++ 深度学习框架，专注�
 - **Flatten** - 展平层
 - **ReLU** - ReLU 激活函数
 - **SiLU** - SiLU 激活函数
+- **BatchNorm2D** - 二维批归一化（实现见 `layer.h` / `layer.cpp`）
 
 ### 优化器
 
@@ -65,58 +65,57 @@ TinyInferEngine 是一个从零开始构建的 C++ 深度学习框架，专注�
 
 ## 项目结构
 
+以下为当前仓库中的主要路径（`build/` 为本地生成，不应提交；见下文「仓库卫生」）。
+
 ```
 TinyInferEngine/
-├── CMakeLists.txt              # CMake 构建配置
-├── README.md                   # 本文件
-├── include/                    # 头文件目录
-│   ├── tensor.h               # 核心张量类（含Autograd）
-│   ├── layer.h                # 基础层和所有层实现
-│   ├── model.h                # Sequential 顺序模型容器
-│   ├── optimizer.h            # 优化器基类和实现
-│   ├── scheduler.h            # 学习率调度器
-│   ├── loss.h                 # 损失函数
-│   ├── conv2d.h               # 卷积层
-│   ├── maxpool2d.h            # 池化层
-│   ├── flatten.h              # 展平层
-│   ├── relu.h                 # ReLU 激活
-│   └── silu.h                 # SiLU 激活
-├── src/                        # 源文件目录
-│   ├── main.cpp               # 推理引擎主程序
-│   ├── tensor.cpp             # 张量实现
-│   ├── layer.cpp              # 层实现
-│   ├── model.cpp              # Sequential 实现
-│   ├── optimizer.cpp          # 优化器实现
-│   ├── scheduler.cpp          # 调度器实现
-│   ├── loss.cpp               # 损失函数实现
-│   ├── conv2d.cpp             # 卷积层实现
-│   ├── maxpool2d.cpp          # 池化层实现
-│   ├── flatten.cpp            # 展平层实现
-│   ├── relu.cpp               # ReLU 实现
-│   ├── silu.cpp               # SiLU 实现
-│   ├── train_minist.cpp       # MNIST 训练脚本
-│   └── export_model.py        # 模型导出工具
-├── tests/                      # 测试目录
-│   └── test_tensor.cpp        # 张量功能测试
-├── data/                       # 数据目录
-│   └── MNIST/                 # MNIST 数据集
-├── weights/                    # 预训练权重目录
-└── build/                      # CMake 构建输出目录
-
+├── CMakeLists.txt
+├── README.md
+├── README_EN.md               # 英文简介（与中文 README 配套）
+├── export_model.py            # PyTorch 训练并导出 float32 权重（与 C++ 侧二进制格式配套）
+├── train_minist.cpp           # MNIST 训练入口（可执行目标名仍为 train_minist，历史拼写）
+├── include/
+│   ├── tensor.h               # 张量与自动求导
+│   ├── layer.h                # Layer 基类与各算子声明（Linear / Conv2D / Pool / 激活 / BN 等）
+│   ├── model.h                # Sequential 顺序模型
+│   ├── optimizer.h
+│   ├── scheduler.h
+│   └── loss.h
+├── src/
+│   ├── main.cpp               # infer_engine：加载权重并推理
+│   ├── tensor.cpp
+│   ├── layer.cpp
+│   ├── model.cpp
+│   ├── optimizer.cpp
+│   ├── scheduler.cpp
+│   └── loss.cpp
+├── tests/
+│   └── test_tensor.cpp        # 早期测试草稿（与当前 API 不一致，默认未接入 CMake）
+├── data/                      # 数据集目录（如 MNIST）
+├── weights/                   # 导出的 .bin 权重（按需放置，大文件建议勿提交）
+└── .gitignore
 ```
 
 ## 快速开始
 
 ### 环境要求
 
-- **C++ 标准**: C++17 或更高
+- **C++ 标准**: C++17（与 `CMakeLists.txt` 中 `CMAKE_CXX_STANDARD` 一致）
 - **编译器**: GCC 7.0+、Clang 5.0+、MSVC 2017+
 - **构建工具**: CMake 3.10+
 - **操作系统**: Windows、Linux、macOS
+- **OpenMP**: 构建时需要（CMake `find_package(OpenMP REQUIRED)`），用于部分算子的多线程加速
 
-### 安装依赖
+### 依赖说明
 
-本项目无第三方依赖，仅使用 C++ 标准库。
+- **C++ 库本体**：不依赖 Eigen、PyTorch C++ 等第三方数值库。
+- **构建期**：需要支持 OpenMP 的工具链（Windows 上通常随 Visual Studio 提供 LLVM OpenMP 或 MSVC OpenMP；Linux 上为 `libgomp` 等）。
+
+### 仓库卫生
+
+- 请勿将 **`build/`**、**`out/`**、IDE 工程缓存等生成物提交到 Git；仓库已提供 **`.gitignore`** 覆盖常见场景。
+- 若使用 `export_model.py`，本地可能产生 `data/` 下载缓存、`__pycache__/` 等，同样已被忽略。
+- 体积较大的 **`weights/*.bin`** 或完整数据集，建议仅在需要时本地保留，或通过 Git LFS / Release 附件分发。
 
 ### 克隆项目
 
@@ -129,30 +128,49 @@ cd TinyInferEngine
 
 ### 使用 CMake 构建
 
+在仓库根目录执行：
+
 ```bash
-# 创建构建目录
 mkdir build
 cd build
-
-# 配置和编译
 cmake ..
 cmake --build . --config Release
+```
 
-# 运行推理引擎
-.\build\Debug\infer_engine.exe
+说明：
 
-# 运行 MNIST 训练
-.\build\Debug\train_minist.exe
+- **Visual Studio 生成器**（Windows 常见）：多配置输出在 `build/Release/` 或 `build/Debug/` 下，例如从仓库根目录运行 `build\Release\infer_engine.exe`（或 `build\Debug\...`）。
+- **Ninja / Unix Makefiles**：可执行文件通常直接在 `build/` 目录下，例如 `./infer_engine`。
+
+### 运行示例
+
+在放好 MNIST 数据与 `weights/` 下各 `*.bin` 权重后（参见 `export_model.py` 与 `src/main.cpp` 中的文件名）：
+
+```bash
+# 推理（路径按你的生成目录调整）
+./infer_engine
+
+# MNIST 训练（可执行文件名仍为 train_minist）
+./train_minist
+```
+
+Windows（Release 示例）：
+
+```text
+build\Release\infer_engine.exe
+build\Release\train_minist.exe
 ```
 
 ### 构建目标
 
 | 目标 | 说明 |
 |------|------|
-| `infer_engine` | 推理引擎可执行文件 |
-| `test_tensor` | 张量功能单元测试 |
-| `train_minist` | MNIST 模型训练脚本 |
-| `core_lib` | 核心库（静态库） |
+| `infer_engine` | 推理可执行文件（`src/main.cpp`） |
+| `train_minist` | MNIST 训练（`train_minist.cpp`；目标名为历史拼写） |
+| `core_lib` | 核心静态库 |
+| `test_tensor` | 未默认加入构建：`tests/test_tensor.cpp` 需先与当前 `Tensor` / `Layer` API 对齐后再在 CMake 中启用 |
+
+> **Python 导出权重**：在仓库根目录执行 `python export_model.py`（需单独安装 PyTorch / torchvision），生成与 C++ `Tensor::load_from_file` 一致的 float32 原始二进制文件。
 
 ## API 文档
 
@@ -506,4 +524,4 @@ A: 继承 `Layer` 基类，实现 `forward()` 和 `parameters()` 方法，在 `f
 
 ---
 
-**最后更新**: 2026-04-29
+**最后更新**: 2026-05-12
